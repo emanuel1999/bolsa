@@ -1,0 +1,4 @@
+Host puma
+    HostName 172.21.38.12
+    Port 22
+    User root

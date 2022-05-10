@@ -1,0 +1,6 @@
+#Borrado general de archivos procesados (Martes y Viernes)
+00 13 * * * /recursos/scripts/genericos/./borrarProcesados.sh
+
+#EDESUR 
+*/2 * * * * /recursos/scripts/clientes/./edesur.sh 1>>/clientes/logs/edesur.log 2>/dev/null
+*/5 * * * * /recursos/scripts/clientes/./edesur_recibir.sh 1>>/clientes/logs/edesur_Recibir.log 2>/dev/null

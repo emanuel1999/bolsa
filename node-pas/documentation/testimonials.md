@@ -1,0 +1,3 @@
+Para ver la documentación de los endpoints vinculados con el flujo "testimonials" puede acceder al siguiente [link] (https://documenter.getpostman.com/view/18770939/UVyxRZzS). En esta documentación se muestra las respectivas peticiones que deben formularse para listar todos los testimonios, crear uno nuevo, editarlo o eliminarlo. Así también, se muestran la respuesta obtenida en cada cada caso. Dado que para crear, editar o eliminar un testimonio se requiere que el usuario sea administrador, se incluyó en la documentación los endpoints vinculados con el registro y el login de un usuario con roleId=1.    
+
+

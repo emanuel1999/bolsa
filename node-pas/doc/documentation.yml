@@ -1,0 +1,507 @@
+openapi: "3.0.1"
+info:
+  version: "1.0.0"
+  title: "ONG-OT157"
+servers:
+  - url: "http://localhost:3000/"
+tags:
+- name: "Categories"
+  description: "Get category names"
+- name: "News"
+  description: "News endpoints"
+components:
+  schemas:
+    Category:
+      type: object
+      required: ["name"]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          description: "Category name"
+        description:
+          type: string
+          description: "Category description"
+        image:
+          type: string
+          description: "Category image"
+        created_at:
+          type: string
+          description: "Category creation date"
+        updated_at:
+          type: string
+          description: "Category update date"
+        deleted_at:
+          type: string
+          description: "Category deletion date"
+    News:
+      type: object
+      required: ["name", "content", "categoryId", "image"]
+      properties:
+        name:
+          type: string
+          description: "News title"
+        content:
+          type: string
+          description: "News content"
+        image:
+          type: string
+          description: "News image"
+        categoryId:
+          type: integer
+          description: "News category id"
+        created_at:
+          type: string
+          description: "News creation date"
+        updated_at:
+          type: string
+          description: "News update date"
+        deleted_at:
+          type: string
+          description: "News deletion date"
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: token
+security:
+  - ApiKeyAuth: []
+      
+paths:
+  /categories:
+    get:
+      tags:
+      - "Categories"
+      summary: "Find categories sorted by page"
+      description: "Returns a list of ten category names sorted by page, starting with page 1 and returns 
+        the previus and next page links according the page number you're currently on."
+      produces:
+      - "application/json"
+      parameters:
+      - name: "page"
+        in: "query"
+        description: "Page number"
+        required: false
+        schema:
+          type: "string"
+      responses:
+        200:
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/Category"
+                example:
+                - previusPage: "http://localhost:3000/categories?page=1"
+                  nextPage: "http://localhost:3000/categories?page=2"
+                - name: "Category 1"
+                - name: "Category 2"
+        401:
+          description: "Unauthorized"
+        403:
+          description: "Forbidden"
+        404:
+          description: "Not found"
+    post:
+      tags:
+      - "Categories"
+      summary: "Create category"
+      description: "Creates a new category"
+      requestBody:
+        description: "Category object that needs to be added"
+        content:
+          application/json:
+            schema:
+              properties:
+                name:
+                  type: string
+                  description: "Category name"
+                description:
+                  type: string
+                  description: "Category description"
+                image:
+                  type: string
+                  description: "Category image"
+        required: true
+      responses:
+        201:
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+        400:
+          description: "Bad request"
+        401:
+          description: "Unauthorized"
+        500:
+          description: "Internal server error"
+  /categories/{categoryId}:
+    get:
+      tags:
+      - "Categories"
+      summary: "Find category by id"
+      description: "Returns a category by id"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "categoryId"
+        in: "path"
+        description: "Category id"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        200:
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/Category"
+                example:
+                - id: 1
+                  name: "Category 1"
+                  description: "Category 1 description"
+                  image: "http://localhost:3000/images/category1.jpg"
+                  created_at: "2020-01-01 00:00:00"
+                  updated_at: "2020-01-01 00:00:00"
+        401:
+          description: "Unauthorized"
+        404:
+          description: "Not found"
+    put:
+      tags:
+      - "Categories"
+      summary: "Update category"
+      description: "Updates a category"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "categoryId"
+        in: "path"
+        description: "Category id"
+        required: true
+        schema:
+          type: "string"
+      requestBody:
+        description: "Category object that needs to be updated"
+        content:
+          application/json:
+            schema:
+              properties:
+                name:
+                  type: string
+                  description: "Category name"
+                description:
+                  type: string
+                  description: "Category description"
+                image:
+                  type: string
+                  description: "Category image"
+        required: true
+      responses:
+        200:
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/Category"
+                example:
+                - id: 1
+                  name: "Category 1"
+                  description: "Category 1 description"
+                  image: "http://localhost:3000/images/category1.jpg"
+                  created_at: "2020-01-01 00:00:00"
+                  updated_at: "2020-01-01 00:00:00"
+        400:
+          description: "Bad request"
+        401:
+          description: "Unauthorized"
+        404:
+          description: "Not found"
+    delete:
+      tags:
+      - "Categories"
+      summary: "Delete category"
+      description: "Deletes a category"
+      parameters:
+      - name: "categoryId"
+        in: "path"
+        description: "Category id"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        200:
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                example:
+                  message: "Category deleted"
+        401:
+          description: "Unauthorized"
+        404:
+          description: "Not found"
+  /news:
+    get:
+      tags:
+      - "News"
+      summary: "Find news sorted by page"
+      description: "Returns a list News sorted by page with a default page size of 10, starting with page 0 and returning 
+        the currently page you are on, total of pages and previus/next page according to the page number you're currently on."
+      produces:
+      - "application/json"
+      parameters:
+      - name: "page"
+        in: "query"
+        description: "Page number, default value is 0"
+        required: false
+        schema:
+          type: "string"
+      - name: "size"
+        in: "query"
+        description: "Page size, default value is 10"
+        required: false
+        schema:
+          type: "string"
+      responses:
+        200:
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/News"
+                example:
+                  example: {
+                "status": "OK",
+                "totalPages": "1",
+                "page": "0",
+                "nextPage": "1",
+                "previousPage": "none",
+                }
+                  Content: [
+                {
+                "id": 2,
+                "name": "Example News name",
+                "content": "Example content",
+                "image": "Example_image_route_or_url",
+                "categoryId": 1,
+                "createdAt": "Date",
+                "updatedAt": "Date",
+                Category: {
+                 "id": 1,
+                 "name": "Example category name",
+                 "description": "Example category description",
+                 "image": "Example_image_route_or_url",
+                 "createdAt": "Date",
+                 "updatedAt": "Date"
+      }
+    },
+                  ]
+        401:
+          description: "Unauthorized"
+        403:
+          description: "Forbidden"
+        404:
+          description: "Not found"
+    post:
+      tags:
+      - "News"
+      summary: "Create News"
+      description: "Creates a new post"
+      requestBody:
+        description: "News object that needs to be added"
+        content:
+          application/json:
+            schema:
+              properties:
+                name:
+                  type: string
+                  description: "News name"
+                content:
+                  type: string
+                  description: "News description"
+                image:
+                  type: string
+                  description: "News image"
+                categoryId:
+                  type: integer
+                  description: "News category id"
+        required: true
+      responses:
+        201:
+          description: "Successful operation"
+          content:
+            application/json:
+                example:
+                - status: "OK"
+                  message: "News created!"
+                - id: 1
+                  name: "News 1 example name"
+                  content: "News 1 example content"
+                  image: "News 1 example image"
+                  categoryId: "1"
+                  created_at: "Date"
+                  updated_at: "Date"
+                  Category: {
+                 "id": 1,
+                 "name": "Example category name",
+                 "description": "Example category description",
+                 "image": "Example_image_route_or_url",
+                 "createdAt": "Date",
+                 "updatedAt": "Date"
+      }
+        400:
+          description: "Bad request"
+        401:
+          description: "Unauthorized"
+        500:
+          description: "Internal server error"
+  /news/{Id}:
+    get:
+      tags:
+      - "News"
+      summary: "Find News by id"
+      description: "Returns a News by id"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "Id"
+        in: "path"
+        description: "News id"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        200:
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/News"
+                example:
+                - id: 1
+                  name: "News 1 example name"
+                  content: "News 1 example content"
+                  image: "News 1 example image"
+                  categoryId: "1"
+                  created_at: "2020-01-01 00:00:00"
+                  updated_at: "2020-01-01 00:00:00"
+                  Category: {
+                 "id": 1,
+                 "name": "Example category name",
+                 "description": "Example category description",
+                 "image": "Example_image_route_or_url",
+                 "createdAt": "Date",
+                 "updatedAt": "Date"
+      }
+        401:
+          description: "Unauthorized"
+        404:
+          description: "Not found"
+    put:
+      tags:
+      - "News"
+      summary: "Update News"
+      description: "Updates a News"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "Id"
+        in: "path"
+        description: "News id"
+        required: true
+        schema:
+          type: "string"
+      requestBody:
+        description: "News object that needs to be updated"
+        content:
+          application/json:
+            schema:
+              properties:
+                name:
+                  type: string
+                  description: "News name"
+                content:
+                  type: string
+                  description: "News content"
+                image:
+                  type: string
+                  description: "News image"
+                categoryId:
+                  type: string
+                  description: "News category id"
+        required: true
+      responses:
+        200:
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/News"
+                example:
+                - status: "OK"
+                  message: "News updated!"
+                - id: 1
+                  name: "News 1 example name"
+                  content: "News 1 example content"
+                  image: "News 1 example image"
+                  categoryId: "1"
+                  created_at: "Date"
+                  updated_at: "Date"
+                  Category: {
+                 "id": 1,
+                 "name": "Example category name",
+                 "description": "Example category description",
+                 "image": "Example_image_route_or_url",
+                 "createdAt": "Date",
+                 "updatedAt": "Date"
+      }
+        400:
+          description: "Bad request"
+        401:
+          description: "Unauthorized"
+        404:
+          description: "Not found"
+    delete:
+      tags:
+      - "News"
+      summary: "Delete News"
+      description: "Deletes a News"
+      parameters:
+      - name: "Id"
+        in: "path"
+        description: "News id"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        200:
+          description: "Successful operation"
+          content:
+            application/json:
+              schema:
+                example:
+                  status: "OK"
+                  message: "News deleted!"
+        401:
+          description: "Unauthorized"
+        404:
+          description: "Not found"
+
+    
+
+        
+
+      
+
+
+

@@ -1,0 +1,40 @@
+FROM alpine:3.7
+#Instalacion de paquetes
+RUN apk --update add --no-cache \
+    pdftk\
+    bash \
+    openssh \
+    outils-md5 \
+    tzdata 
+#Creacion de Directorios
+RUN mkdir -p /clientes/logs \
+    && mkdir -p /clientes/procesados \
+    && mkdir -p /recursos/scripts/genericos \
+    && mkdir -p /recursos/scripts/clientes  
+
+#Modificacion /etc/ssh/sshd_config para root login y creacion de llaves necesarias
+##########################################################################################################
+# USAR SOLO AL CREAR NUEVA IMAGEN PARA NO MODIFICAR LAS LLAVES .PUB QUE ESTAN EN AUTHORIZED_KEYS EN PUMA #
+# ########################################################################################################
+RUN sed -i s/#PermitRootLogin.*/PermitRootLogin\ yes/ /etc/ssh/sshd_config \
+    && /usr/bin/ssh-keygen -A \
+    && ssh-keygen -t rsa -b 4096 -f  /root/.ssh/ssh_host_key \
+    && ssh-keygen -f /root/.ssh/id_rsa -t rsa -N ''
+
+#Cambio de contraseña root
+RUN echo "root:root" | chpasswd 
+#Configuracion zona horaria
+RUN cp /usr/share/zoneinfo/America/Buenos_Aires /etc/localtime \
+    && echo "America/Buenos_Aires" >  /etc/timezone
+#Copia y modificacion permisos para archivo /root/.ssh/config
+COPY ./filesToCopy/ssh_config /root/.ssh/config
+RUN chmod 600 /root/.ssh/config
+#Copia de archivos
+COPY ./filesToCopy/entrypoint.sh /
+COPY ./filesToCopy/crontab /var/spool/cron/crontabs/root
+COPY ./filesToCopy/bashrc /root/.bashrc
+COPY ./filesToCopy/scripts/clientes/* /recursos/scripts/clientes/
+COPY ./filesToCopy/scripts/genericos/borrarProcesados.sh /recursos/scripts/genericos/
+#Exponer puerto 22 para SSH
+#EXPOSE 22
+ENTRYPOINT ["./entrypoint.sh"]
